@@ -4,8 +4,8 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +85,7 @@ private fun OnBoardingScreen(
         }
     }
 }
+
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
@@ -96,55 +99,63 @@ private fun Greetings(
 }
 
 @Composable
-fun Greeting(name: String) {
-//    remember is used to guard against recomposition, so the state is not reset.
-    var expanded by remember { mutableStateOf(false) }
-    val extraPadding by animateDpAsState(
-        if (expanded) 48.dp else 0.dp,
-        /**
-         * The spring spec does not take any time-related parameters. Instead it relies on physical properties
-         * (damping and stiffness) to make animations more natura
-         */
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ), label = ""
-    )
-
-    // Surface is setting background color
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
+private fun Greeting(name: String) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
-        Row(modifier = Modifier.padding(24.dp)) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    //Need to set padding >=0 or app crash
-                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
-            ) {
-                Text(text = "Hello,")
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                )
-            }
+        CardContent(name)
+    }
+}
 
-//            ElevatedButton(onClick = { expanded = !expanded }) {
-//                Text(if (expanded) "Show less" else "Show more")
-//            }
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (expanded) {
-                        stringResource(id = R.string.show_less)
-                    } else stringResource(id = R.string.show_more)
+@Composable
+private fun CardContent(name: String) {
+    //    remember is used to guard against recomposition, so the state is not reset.
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .padding(12.dp)
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                //Need to set padding >=0 or app crash
+                .padding(12.dp)
+        ) {
+            Text(text = "Hello,")
+            Text(
+                text = name,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
+                )
+            )
+            if (expanded) {
+                Text(
+                    text = ("This is a test bla bla").repeat(6)
                 )
             }
         }
 
+//            ElevatedButton(onClick = { expanded = !expanded }) {
+//                Text(if (expanded) "Show less" else "Show more")
+//            }
+        IconButton(onClick = { expanded = !expanded }) {
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = if (expanded) {
+                    stringResource(id = R.string.show_less)
+                } else stringResource(id = R.string.show_more)
+            )
+        }
     }
 }
 
@@ -153,12 +164,21 @@ fun Greeting(name: String) {
     showBackground = true,
     widthDp = 320,
     uiMode = UI_MODE_NIGHT_YES,
-    name = "Dark"
+    name = "DefaultPreviewDark"
 )
+@Preview(showBackground = true, widthDp = 320)
 @Composable
 fun DefaultPreview() {
     ComposeCodelabsTheme {
         Greetings()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    ComposeCodelabsTheme {
+        OnBoardingScreen(onContinueClicked = {/* Do nothing */ })
     }
 }
 
@@ -170,11 +190,3 @@ fun MyAppPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-
-fun OnboardingPreview() {
-    ComposeCodelabsTheme {
-        OnBoardingScreen(onContinueClicked = {/* Do nothing */ })
-    }
-}
