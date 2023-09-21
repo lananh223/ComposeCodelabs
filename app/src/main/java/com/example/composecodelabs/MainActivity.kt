@@ -49,6 +49,53 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun MyApp(modifier: Modifier = Modifier) {
+
+    var shouldShowOnBoarding by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    Surface(modifier) {
+        if (shouldShowOnBoarding) {
+            OnBoardingScreen(onContinueClicked = { shouldShowOnBoarding = false })
+        } else {
+            Greetings()
+        }
+    }
+}
+
+@Composable
+private fun OnBoardingScreen(
+    onContinueClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome to the Codelabs")
+        Button(
+            modifier = modifier.padding(vertical = 24.dp),
+            onClick = onContinueClicked
+        ) {
+            Text("Continue")
+        }
+    }
+}
+@Composable
+private fun Greetings(
+    modifier: Modifier = Modifier,
+    names: List<String> = List(1000) { "$it" }
+) {
+    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+        items(items = names) { name ->
+            Greeting(name = name)
+        }
+    }
+}
+
+@Composable
 fun Greeting(name: String) {
 //    remember is used to guard against recomposition, so the state is not reset.
     var expanded by remember { mutableStateOf(false) }
@@ -120,55 +167,6 @@ fun DefaultPreview() {
 fun MyAppPreview() {
     ComposeCodelabsTheme {
         MyApp(Modifier.fillMaxSize())
-    }
-}
-
-@Composable
-fun MyApp(modifier: Modifier = Modifier) {
-
-    var shouldShowOnBoarding by rememberSaveable {
-        mutableStateOf(true)
-    }
-
-    Surface(modifier) {
-        if (shouldShowOnBoarding) {
-            OnBoardingScreen(onContinueClicked = { shouldShowOnBoarding = false })
-        } else {
-            Greetings()
-        }
-    }
-}
-
-@Composable
-private fun Greetings(
-    modifier: Modifier = Modifier,
-    names: List<String> = List(1000) { "$it" }
-) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        items(items = names) { name ->
-            Greeting(name = name)
-        }
-    }
-}
-
-@Composable
-private fun OnBoardingScreen(
-    onContinueClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Welcome to the Codelabs")
-        Button(
-            modifier = modifier.padding(vertical = 24.dp),
-            onClick = onContinueClicked
-        ) {
-            Text("Continue")
-        }
     }
 }
 
