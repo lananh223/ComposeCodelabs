@@ -3,6 +3,9 @@ package com.example.composecodelabs
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +44,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String) {
 //    remember is used to guard against recomposition, so the state is not reset.
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by remember { mutableStateOf(false) }
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        /**
+         * The spring spec does not take any time-related parameters. Instead it relies on physical properties
+         * (damping and stiffness) to make animations more natura
+         */
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ), label = ""
+    )
+
     // Surface is setting background color
     Surface(
         color = MaterialTheme.colorScheme.primary,
@@ -52,14 +66,14 @@ fun Greeting(name: String) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPadding)
+                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
             ) {
                 Text(text = "Hello,")
                 Text(text = name)
             }
 
-            ElevatedButton(onClick = { expanded.value = !expanded.value }) {
-                Text(if (expanded.value) "Show less" else "Show more")
+            ElevatedButton(onClick = { expanded = !expanded }) {
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
 
